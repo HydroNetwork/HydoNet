@@ -93,11 +93,11 @@
    "repositories": [
       {
          "type": "vcs",
-         "url":  "git@github.com:NetherGamesMC/BedrockProtocol.git"
+         "url":  "git@github.com:HydroNetwork/BedrockProtocol.git"
       },
       {
          "type": "vcs",
-         "url":  "git@github.com:NetherGamesMC/BedrockData.git"
+         "url":  "git@github.com:HydroNetwork/BedrockData.git"
       }
    ]
 }
