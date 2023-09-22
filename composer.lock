@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c0c9d79faeff768a9313b7f8b0306496",
+    "content-hash": "16878ab3f07cbcd3f52180442594a06d",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -121,17 +121,17 @@
             "time": "2023-01-15T23:15:59+00:00"
         },
         {
-            "name": "nethergamesmc/bedrock-data",
+            "name": "hydronetwork/bedrock-data",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/NetherGamesMC/BedrockData.git",
-                "reference": "7f37b3d15d6a6c980b17fd4e49056f26fc47b91a"
+                "url": "https://github.com/HydroNetwork/BedrockData.git",
+                "reference": "9b3270da52073c357cdcc01e1a8b5a85f7775bcd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NetherGamesMC/BedrockData/zipball/7f37b3d15d6a6c980b17fd4e49056f26fc47b91a",
-                "reference": "7f37b3d15d6a6c980b17fd4e49056f26fc47b91a",
+                "url": "https://api.github.com/repos/HydroNetwork/BedrockData/zipball/9b3270da52073c357cdcc01e1a8b5a85f7775bcd",
+                "reference": "9b3270da52073c357cdcc01e1a8b5a85f7775bcd",
                 "shasum": ""
             },
             "default-branch": true,
@@ -141,22 +141,22 @@
             ],
             "description": "Blobs of data generated from Minecraft: Bedrock Edition, used by PocketMine-MP",
             "support": {
-                "source": "https://github.com/NetherGamesMC/BedrockData/tree/master"
+                "source": "https://github.com/HydroNetwork/BedrockData/tree/master"
             },
-            "time": "2023-09-20T18:18:40+00:00"
+            "time": "2023-09-22T14:01:04+00:00"
         },
         {
-            "name": "nethergamesmc/bedrock-protocol",
+            "name": "hydronetwork/bedrock-protocol",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/NetherGamesMC/BedrockProtocol.git",
-                "reference": "320f7d909d8f9dd2d04d3ca687a31ef07e5bd570"
+                "url": "https://github.com/HydroNetwork/BedrockProtocol.git",
+                "reference": "fcc0a0528639ade4fbaf7c23324cfd3e7445a6ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NetherGamesMC/BedrockProtocol/zipball/320f7d909d8f9dd2d04d3ca687a31ef07e5bd570",
-                "reference": "320f7d909d8f9dd2d04d3ca687a31ef07e5bd570",
+                "url": "https://api.github.com/repos/HydroNetwork/BedrockProtocol/zipball/fcc0a0528639ade4fbaf7c23324cfd3e7445a6ba",
+                "reference": "fcc0a0528639ade4fbaf7c23324cfd3e7445a6ba",
                 "shasum": ""
             },
             "require": {
@@ -197,9 +197,9 @@
             ],
             "description": "An implementation of the Minecraft: Bedrock Edition protocol in PHP",
             "support": {
-                "source": "https://github.com/NetherGamesMC/BedrockProtocol/tree/master"
+                "source": "https://github.com/HydroNetwork/BedrockProtocol/tree/master"
             },
-            "time": "2023-09-20T18:11:21+00:00"
+            "time": "2023-09-22T14:00:26+00:00"
         },
         {
             "name": "pocketmine/bedrock-block-upgrade-schema",
@@ -2938,8 +2938,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "nethergamesmc/bedrock-data": 20,
-        "nethergamesmc/bedrock-protocol": 20
+        "hydronetwork/bedrock-data": 20,
+        "hydronetwork/bedrock-protocol": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
