@@ -250,7 +250,7 @@ JIT_WARNING
 		}
 		require_once($bootstrap);
 
-		$composerGitHash = InstalledVersions::getReference('pocketmine/pocketmine-mp');
+		$composerGitHash = InstalledVersions::getReference('hydronetwork/hydronet');
 		if($composerGitHash !== null){
 			//we can't verify dependency versions if we were installed without using git
 			$currentGitHash = explode("-", VersionInfo::GIT_HASH())[0];
