@@ -235,7 +235,9 @@ class NetworkSession{
 				$this->logger->setPrefix($this->getLogPrefix());
 				$this->manager->markLoginReceived($this);
 			},
-			$this->setAuthenticationStatus(...)
+			function(bool $isAuthenticated, bool $authRequired, ?string $error, ?string $clientPubKey) : void{
+				$this->setAuthenticationStatus($isAuthenticated, $authRequired, $error, $clientPubKey);
+			}
 		));
 	}
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "16878ab3f07cbcd3f52180442594a06d",
+    "content-hash": "a85fe3e463080ce52e95c3979d76a993",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -151,12 +151,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/HydroNetwork/BedrockProtocol.git",
-                "reference": "fcc0a0528639ade4fbaf7c23324cfd3e7445a6ba"
+                "reference": "3d4a180ca37d782a11c47f1eabd0c01a4aef114d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/HydroNetwork/BedrockProtocol/zipball/fcc0a0528639ade4fbaf7c23324cfd3e7445a6ba",
-                "reference": "fcc0a0528639ade4fbaf7c23324cfd3e7445a6ba",
+                "url": "https://api.github.com/repos/HydroNetwork/BedrockProtocol/zipball/3d4a180ca37d782a11c47f1eabd0c01a4aef114d",
+                "reference": "3d4a180ca37d782a11c47f1eabd0c01a4aef114d",
                 "shasum": ""
             },
             "require": {
@@ -199,7 +199,7 @@
             "support": {
                 "source": "https://github.com/HydroNetwork/BedrockProtocol/tree/master"
             },
-            "time": "2023-09-22T14:00:26+00:00"
+            "time": "2023-09-23T03:38:13+00:00"
         },
         {
             "name": "pocketmine/bedrock-block-upgrade-schema",
