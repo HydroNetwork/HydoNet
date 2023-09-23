@@ -164,7 +164,7 @@ class NetworkSession{
 	/** @var string[] */
 	private array $chunkCacheBlobs = [];
 	private bool $chunkCacheEnabled = false;
-    private bool $isFirstPacket = true;
+	private bool $isFirstPacket = true;
 
 	/**
 	 * @var \SplQueue|CompressBatchPromise[]
@@ -416,7 +416,7 @@ class NetworkSession{
 				try{
 					$decompressed = $this->compressor->decompress($payload);
 				}catch(DecompressionException $e){
-                    if($this->isFirstPacket){
+					if($this->isFirstPacket){
 						$this->logger->debug("Failed to decompress packet, assuming client is using the new compression method");
 
 						$this->enableCompression = false;
@@ -434,7 +434,7 @@ class NetworkSession{
 					Timings::$playerNetworkReceiveDecompress->stopTiming();
 				}
 			}else{
-                $this->isFirstPacket = false;
+				$this->isFirstPacket = false;
 				$decompressed = $payload;
 			}
 
@@ -1045,10 +1045,10 @@ class NetworkSession{
 			$pk->setFlag(AdventureSettingsPacket::NO_CLIP, !$for->hasBlockCollision());
 			$pk->setFlag(AdventureSettingsPacket::FLYING, $for->isFlying());
 		}
-        
-        $layers[] = new AbilitiesLayer(AbilitiesLayer::LAYER_SPECTATOR, [
-				AbilitiesLayer::ABILITY_FLYING => true,
-			], null, null);
+
+		$layers[] = new AbilitiesLayer(AbilitiesLayer::LAYER_SPECTATOR, [
+			AbilitiesLayer::ABILITY_FLYING => true,
+		], null, null);
 
 		$this->sendDataPacket(UpdateAbilitiesPacket::create(new AbilitiesData(
 			$isOp ? CommandPermissions::OPERATOR : CommandPermissions::NORMAL,
@@ -1073,14 +1073,14 @@ class NetworkSession{
 				autoJump: $this->player->hasAutoJump()
 			));
 		} else {
-            $this->sendDataPacket(UpdateAdventureSettingsPacket::create(
-                noAttackingMobs: false,
-                noAttackingPlayers: false,
-                worldImmutable: false,
-                showNameTags: true,
-                autoJump: $this->player->hasAutoJump()
-            ));
-        }
+			$this->sendDataPacket(UpdateAdventureSettingsPacket::create(
+				noAttackingMobs: false,
+				noAttackingPlayers: false,
+				worldImmutable: false,
+				showNameTags: true,
+				autoJump: $this->player->hasAutoJump()
+			));
+		}
 	}
 
 	public function syncAvailableCommands() : void{
@@ -1214,7 +1214,7 @@ class NetworkSession{
 				try{
 					$this->queueCompressed($compressBatchPromise);
 					$onCompletion();
-                    if($this->getProtocolId() === ProtocolInfo::PROTOCOL_1_19_10){
+					if($this->getProtocolId() === ProtocolInfo::PROTOCOL_1_19_10){
 						//TODO: HACK! we send the full tile data here, due to a bug in 1.19.10 which causes items in tiles
 						//(item frames, lecterns) to not load properly when they are sent in a chunk via the classic chunk
 						//sending mechanism. We workaround this bug by sending only bare essential data in LevelChunkPacket
@@ -1312,7 +1312,7 @@ class NetworkSession{
 	}
 
 	public function onOpenSignEditor(Vector3 $signPosition, bool $frontSide) : void{
-        if($this->getProtocolId() >= ProtocolInfo::PROTOCOL_1_19_80){
+		if($this->getProtocolId() >= ProtocolInfo::PROTOCOL_1_19_80){
 			$this->sendDataPacket(OpenSignPacket::create(BlockPosition::fromVector3($signPosition), $frontSide));
 		}
 	}

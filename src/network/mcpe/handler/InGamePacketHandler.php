@@ -514,8 +514,8 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 
 		return false;
 	}
-    
-    public function handleAdventureSettings(AdventureSettingsPacket $packet) : bool{
+
+	public function handleAdventureSettings(AdventureSettingsPacket $packet) : bool{
 		if($this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_19_0){
 			return true; //no longer used, but the client still sends it for flight changes
 		}

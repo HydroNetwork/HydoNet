@@ -143,8 +143,8 @@ final class ItemTranslator{
 			ProtocolInfo::PROTOCOL_1_20_10 => 121,
 
 			ProtocolInfo::PROTOCOL_1_20_0 => 111,
-            
-            ProtocolInfo::PROTOCOL_1_19_80 => 101,
+
+			ProtocolInfo::PROTOCOL_1_19_80 => 101,
 
 			ProtocolInfo::PROTOCOL_1_19_70 => 91,
 

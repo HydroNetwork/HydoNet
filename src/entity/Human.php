@@ -70,6 +70,7 @@ use pocketmine\player\Player;
 use pocketmine\world\sound\TotemUseSound;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use function array_diff;
 use function array_fill;
 use function array_filter;
 use function array_key_exists;
@@ -164,7 +165,7 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 	 * @param Player[]|null $targets
 	 */
 	public function sendSkin(?array $targets = null) : void{
-        if($this instanceof Player && $this->getNetworkSession()->getProtocolId() === ProtocolInfo::PROTOCOL_1_19_60){
+		if($this instanceof Player && $this->getNetworkSession()->getProtocolId() === ProtocolInfo::PROTOCOL_1_19_60){
 			$targets = array_diff($targets ?? $this->hasSpawned, [$this]);
 		}
 		TypeConverter::broadcastByTypeConverter($targets ?? $this->hasSpawned, function(TypeConverter $typeConverter) : array{

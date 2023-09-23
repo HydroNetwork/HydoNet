@@ -45,6 +45,7 @@ use pocketmine\Server;
 use Ramsey\Uuid\Uuid;
 use function in_array;
 use function is_array;
+use function preg_match;
 
 /**
  * Handles the initial login phase of the session. This handler is used as the initial state.
@@ -82,7 +83,7 @@ class LoginPacketHandler extends ChunkRequestPacketHandler{
 
 		$clientData = $this->parseClientData($packet->clientDataJwt);
 
-        //Mojang forgot to bump the protocol version when they changed protocol in 1.19.62. Check the game version instead.
+		//Mojang forgot to bump the protocol version when they changed protocol in 1.19.62. Check the game version instead.
 		if(preg_match('/^(\d+)\.(\d+)\.(\d+)/', $clientData->GameVersion, $matches) !== 1){
 			throw new PacketHandlingException("Invalid game version format, expected at least 3 digits");
 		}
