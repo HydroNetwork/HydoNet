@@ -514,6 +514,30 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 
 		return false;
 	}
+    
+    public function handleAdventureSettings(AdventureSettingsPacket $packet) : bool{
+		if($this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_19_0){
+			return true; //no longer used, but the client still sends it for flight changes
+		}
+
+		if($packet->targetActorUniqueId !== $this->player->getId()){
+			return false; //TODO: operators can change other people's permissions using this
+		}
+
+		$handled = false;
+
+		$isFlying = $packet->getFlag(AdventureSettingsPacket::FLYING);
+		if($isFlying !== $this->player->isFlying()){
+			if(!$this->player->toggleFlight($isFlying)){
+				$this->session->syncAbilities($this->player);
+			}
+			$handled = true;
+		}
+
+		//TODO: check for other changes
+
+		return $handled;
+	}
 
 	/**
 	 * @throws PacketHandlingException

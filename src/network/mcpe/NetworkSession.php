@@ -164,6 +164,7 @@ class NetworkSession{
 	/** @var string[] */
 	private array $chunkCacheBlobs = [];
 	private bool $chunkCacheEnabled = false;
+    private bool $isFirstPacket = true;
 
 	/**
 	 * @var \SplQueue|CompressBatchPromise[]
@@ -172,7 +173,7 @@ class NetworkSession{
 	private \SplQueue $compressedQueue;
 	private bool $forceAsyncCompression = true;
 	private ?int $protocolId = null;
-	protected bool $enableCompression = false; //disabled until handshake completed
+	protected bool $enableCompression = true; //disabled until handshake completed
 
 	private ?InventoryManager $invManager = null;
 
@@ -205,9 +206,15 @@ class NetworkSession{
 		$this->packetBatchLimiter = new PacketRateLimiter("Packet Batches", self::INCOMING_PACKET_BATCH_PER_TICK, self::INCOMING_PACKET_BATCH_BUFFER_TICKS);
 		$this->gamePacketLimiter = new PacketRateLimiter("Game Packets", self::INCOMING_GAME_PACKETS_PER_TICK, self::INCOMING_GAME_PACKETS_BUFFER_TICKS);
 
-		$this->setHandler(new SessionStartPacketHandler(
-			$this,
-			$this->onSessionStartSuccess(...)
+		$this->setHandler(new LoginPacketHandler(
+			$this->server,
+			function(PlayerInfo $info) : void{
+				$this->info = $info;
+				$this->logger->info($this->server->getLanguage()->translate(KnownTranslationFactory::pocketmine_network_session_playerName(TextFormat::AQUA . $info->getUsername() . TextFormat::RESET)));
+				$this->logger->setPrefix($this->getLogPrefix());
+				$this->manager->markLoginReceived($this);
+			},
+			$this->setAuthenticationStatus(...)
 		));
 
 		$this->manager->add($this);
@@ -409,12 +416,25 @@ class NetworkSession{
 				try{
 					$decompressed = $this->compressor->decompress($payload);
 				}catch(DecompressionException $e){
-					$this->logger->debug("Failed to decompress packet: " . base64_encode($payload));
-					throw PacketHandlingException::wrap($e, "Compressed packet batch decode error");
+                    if($this->isFirstPacket){
+						$this->logger->debug("Failed to decompress packet, assuming client is using the new compression method");
+
+						$this->enableCompression = false;
+						$this->setHandler(new SessionStartPacketHandler(
+							$this,
+							$this->onSessionStartSuccess(...)
+						));
+
+						$decompressed = $payload;
+					}else{
+						$this->logger->debug("Failed to decompress packet: " . base64_encode($payload));
+						throw PacketHandlingException::wrap($e, "Compressed packet batch decode error");
+					}
 				}finally{
 					Timings::$playerNetworkReceiveDecompress->stopTiming();
 				}
 			}else{
+                $this->isFirstPacket = false;
 				$decompressed = $payload;
 			}
 
@@ -965,41 +985,70 @@ class NetworkSession{
 	public function syncAbilities(Player $for) : void{
 		$isOp = $for->hasPermission(DefaultPermissions::ROOT_OPERATOR);
 
-		//ALL of these need to be set for the base layer, otherwise the client will cry
-		$boolAbilities = [
-			AbilitiesLayer::ABILITY_ALLOW_FLIGHT => $for->getAllowFlight(),
-			AbilitiesLayer::ABILITY_FLYING => $for->isFlying(),
-			AbilitiesLayer::ABILITY_NO_CLIP => !$for->hasBlockCollision(),
-			AbilitiesLayer::ABILITY_OPERATOR => $isOp,
-			AbilitiesLayer::ABILITY_TELEPORT => $for->hasPermission(DefaultPermissionNames::COMMAND_TELEPORT_SELF),
-			AbilitiesLayer::ABILITY_INVULNERABLE => $for->isCreative(),
-			AbilitiesLayer::ABILITY_MUTED => false,
-			AbilitiesLayer::ABILITY_WORLD_BUILDER => false,
-			AbilitiesLayer::ABILITY_INFINITE_RESOURCES => !$for->hasFiniteResources(),
-			AbilitiesLayer::ABILITY_LIGHTNING => false,
-			AbilitiesLayer::ABILITY_BUILD => !$for->isSpectator(),
-			AbilitiesLayer::ABILITY_MINE => !$for->isSpectator(),
-			AbilitiesLayer::ABILITY_DOORS_AND_SWITCHES => !$for->isSpectator(),
-			AbilitiesLayer::ABILITY_OPEN_CONTAINERS => !$for->isSpectator(),
-			AbilitiesLayer::ABILITY_ATTACK_PLAYERS => !$for->isSpectator(),
-			AbilitiesLayer::ABILITY_ATTACK_MOBS => !$for->isSpectator(),
-			AbilitiesLayer::ABILITY_PRIVILEGED_BUILDER => false,
-		];
+		if($this->getProtocolId() >= ProtocolInfo::PROTOCOL_1_19_10){
+			//ALL of these need to be set for the base layer, otherwise the client will cry
+			$boolAbilities = [
+				AbilitiesLayer::ABILITY_ALLOW_FLIGHT => $for->getAllowFlight(),
+				AbilitiesLayer::ABILITY_FLYING => $for->isFlying(),
+				AbilitiesLayer::ABILITY_NO_CLIP => !$for->hasBlockCollision(),
+				AbilitiesLayer::ABILITY_OPERATOR => $isOp,
+				AbilitiesLayer::ABILITY_TELEPORT => $for->hasPermission(DefaultPermissionNames::COMMAND_TELEPORT_SELF),
+				AbilitiesLayer::ABILITY_INVULNERABLE => $for->isCreative(),
+				AbilitiesLayer::ABILITY_MUTED => false,
+				AbilitiesLayer::ABILITY_WORLD_BUILDER => false,
+				AbilitiesLayer::ABILITY_INFINITE_RESOURCES => !$for->hasFiniteResources(),
+				AbilitiesLayer::ABILITY_LIGHTNING => false,
+				AbilitiesLayer::ABILITY_BUILD => !$for->isSpectator(),
+				AbilitiesLayer::ABILITY_MINE => !$for->isSpectator(),
+				AbilitiesLayer::ABILITY_DOORS_AND_SWITCHES => !$for->isSpectator(),
+				AbilitiesLayer::ABILITY_OPEN_CONTAINERS => !$for->isSpectator(),
+				AbilitiesLayer::ABILITY_ATTACK_PLAYERS => !$for->isSpectator(),
+				AbilitiesLayer::ABILITY_ATTACK_MOBS => !$for->isSpectator(),
+				AbilitiesLayer::ABILITY_PRIVILEGED_BUILDER => false,
+			];
 
-		$layers = [
-			//TODO: dynamic flying speed! FINALLY!!!!!!!!!!!!!!!!!
-			new AbilitiesLayer(AbilitiesLayer::LAYER_BASE, $boolAbilities, 0.05, 0.1),
-		];
-		if(!$for->hasBlockCollision()){
-			//TODO: HACK! In 1.19.80, the client starts falling in our faux spectator mode when it clips into a
-			//block. We can't seem to prevent this short of forcing the player to always fly when block collision is
-			//disabled. Also, for some reason the client always reads flight state from this layer if present, even
-			//though the player isn't in spectator mode.
+			$layers = [
+				//TODO: dynamic flying speed! FINALLY!!!!!!!!!!!!!!!!!
+				new AbilitiesLayer(AbilitiesLayer::LAYER_BASE, $boolAbilities, 0.05, 0.1),
+			];
+			if(!$for->hasBlockCollision() && $this->getProtocolId() >= ProtocolInfo::PROTOCOL_1_19_80){
+				//TODO: HACK! In 1.19.80, the client starts falling in our faux spectator mode when it clips into a
+				//block. We can't seem to prevent this short of forcing the player to always fly when block collision is
+				//disabled. Also, for some reason the client always reads flight state from this layer if present, even
+				//though the player isn't in spectator mode.
 
-			$layers[] = new AbilitiesLayer(AbilitiesLayer::LAYER_SPECTATOR, [
+				$layers[] = new AbilitiesLayer(AbilitiesLayer::LAYER_SPECTATOR, [
+					AbilitiesLayer::ABILITY_FLYING => true,
+				], null, null);
+			}
+
+			$pk = UpdateAbilitiesPacket::create(new AbilitiesData(
+				$isOp ? CommandPermissions::OPERATOR : CommandPermissions::NORMAL,
+				$isOp ? PlayerPermissions::OPERATOR : PlayerPermissions::MEMBER,
+				$for->getId(),
+				$layers
+			));
+		}else{
+			$pk = AdventureSettingsPacket::create(
+				0,
+				$isOp ? CommandPermissions::OPERATOR : CommandPermissions::NORMAL,
+				0,
+				$isOp ? PlayerPermissions::OPERATOR : PlayerPermissions::MEMBER,
+				0,
+				$for->getId()
+			);
+
+			$pk->setFlag(AdventureSettingsPacket::WORLD_IMMUTABLE, $for->isSpectator());
+			$pk->setFlag(AdventureSettingsPacket::NO_PVP, $for->isSpectator());
+			$pk->setFlag(AdventureSettingsPacket::AUTO_JUMP, $for->hasAutoJump());
+			$pk->setFlag(AdventureSettingsPacket::ALLOW_FLIGHT, $for->getAllowFlight());
+			$pk->setFlag(AdventureSettingsPacket::NO_CLIP, !$for->hasBlockCollision());
+			$pk->setFlag(AdventureSettingsPacket::FLYING, $for->isFlying());
+		}
+        
+        $layers[] = new AbilitiesLayer(AbilitiesLayer::LAYER_SPECTATOR, [
 				AbilitiesLayer::ABILITY_FLYING => true,
 			], null, null);
-		}
 
 		$this->sendDataPacket(UpdateAbilitiesPacket::create(new AbilitiesData(
 			$isOp ? CommandPermissions::OPERATOR : CommandPermissions::NORMAL,
@@ -1014,13 +1063,24 @@ class NetworkSession{
 			throw new \LogicException("Cannot sync adventure settings for a player that is not yet created");
 		}
 		//everything except auto jump is handled via UpdateAbilitiesPacket
-		$this->sendDataPacket(UpdateAdventureSettingsPacket::create(
-			noAttackingMobs: false,
-			noAttackingPlayers: false,
-			worldImmutable: false,
-			showNameTags: true,
-			autoJump: $this->player->hasAutoJump()
-		));
+		if($this->getProtocolId() >= ProtocolInfo::PROTOCOL_1_19_10){
+			//everything except auto jump is handled via UpdateAbilitiesPacket
+			$this->sendDataPacket(UpdateAdventureSettingsPacket::create(
+				noAttackingMobs: false,
+				noAttackingPlayers: false,
+				worldImmutable: false,
+				showNameTags: true,
+				autoJump: $this->player->hasAutoJump()
+			));
+		} else {
+            $this->sendDataPacket(UpdateAdventureSettingsPacket::create(
+                noAttackingMobs: false,
+                noAttackingPlayers: false,
+                worldImmutable: false,
+                showNameTags: true,
+                autoJump: $this->player->hasAutoJump()
+            ));
+        }
 	}
 
 	public function syncAvailableCommands() : void{
@@ -1154,6 +1214,23 @@ class NetworkSession{
 				try{
 					$this->queueCompressed($compressBatchPromise);
 					$onCompletion();
+                    if($this->getProtocolId() === ProtocolInfo::PROTOCOL_1_19_10){
+						//TODO: HACK! we send the full tile data here, due to a bug in 1.19.10 which causes items in tiles
+						//(item frames, lecterns) to not load properly when they are sent in a chunk via the classic chunk
+						//sending mechanism. We workaround this bug by sending only bare essential data in LevelChunkPacket
+						//(enough to create the tiles, since BlockActorDataPacket can't create tiles by itself) and then
+						//send the actual tile properties here.
+						//TODO: maybe we can stuff these packets inside the cached batch alongside LevelChunkPacket?
+						$chunk = $currentWorld->getChunk($chunkX, $chunkZ);
+						if($chunk !== null){
+							foreach($chunk->getTiles() as $tile){
+								if(!($tile instanceof Spawnable)){
+									continue;
+								}
+								$this->sendDataPacket(BlockActorDataPacket::create(BlockPosition::fromVector3($tile->getPosition()), $tile->getSerializedSpawnCompound($this->getTypeConverter())));
+							}
+						}
+					}
 				}finally{
 					$world->timings->syncChunkSend->stopTiming();
 				}
@@ -1235,7 +1312,9 @@ class NetworkSession{
 	}
 
 	public function onOpenSignEditor(Vector3 $signPosition, bool $frontSide) : void{
-		$this->sendDataPacket(OpenSignPacket::create(BlockPosition::fromVector3($signPosition), $frontSide));
+        if($this->getProtocolId() >= ProtocolInfo::PROTOCOL_1_19_80){
+			$this->sendDataPacket(OpenSignPacket::create(BlockPosition::fromVector3($signPosition), $frontSide));
+		}
 	}
 
 	public function tick() : void{

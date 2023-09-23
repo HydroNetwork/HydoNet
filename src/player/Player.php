@@ -36,6 +36,7 @@ use pocketmine\entity\animation\ArmSwingAnimation;
 use pocketmine\entity\animation\CriticalHitAnimation;
 use pocketmine\entity\Attribute;
 use pocketmine\entity\effect\VanillaEffects;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\entity\Entity;
 use pocketmine\entity\Human;
 use pocketmine\entity\Living;
@@ -507,7 +508,11 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 	public function setAutoJump(bool $value) : void{
 		if($this->autoJump !== $value){
 			$this->autoJump = $value;
-			$this->getNetworkSession()->syncAbilities($this);
+            if($this->getNetworkSession()->getProtocolId() >= ProtocolInfo::PROTOCOL_1_19_10){
+				$this->getNetworkSession()->syncAdventureSettings();
+			}else{
+				$this->getNetworkSession()->syncAbilities($this);
+			}
 		}
 	}
 
