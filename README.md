@@ -1,5 +1,5 @@
 # HydroNet
-Multiversion Spoon protocol's support for PocketMine-MP.
+**A fast-forward, lightweight and advance PocketMine-MP's Spoon with Multiversion Support packed with a ton of additional advance features.**
 
 # Supported Protocol Versions
 | **Minecraft Version** | **Protocol Version** | **Supported** |
