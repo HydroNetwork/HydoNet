@@ -151,7 +151,7 @@ class Sign extends Spawnable{
 
 	protected function addAdditionalSpawnData(CompoundTag $nbt, TypeConverter $typeConverter) : void{
 		if($typeConverter->getProtocolId() >= ProtocolInfo::PROTOCOL_1_19_80){
-            $nbt->setString(self::TAG_TEXT_BLOB, implode("\n", $this->text->getLines()));
+			$nbt->setString(self::TAG_TEXT_BLOB, implode("\n", $this->text->getLines()));
 
 			//the following are not yet used by the server, but needed to roll back any changes to glowing state or colour
 			//if the client uses dye on the sign
@@ -159,7 +159,7 @@ class Sign extends Spawnable{
 			$nbt->setByte(self::TAG_GLOWING_TEXT, 0);
 			$nbt->setByte(self::TAG_LEGACY_BUG_RESOLVE, 1);
 		} else {
-            $nbt->setTag(self::TAG_FRONT_TEXT, CompoundTag::create()
+			$nbt->setTag(self::TAG_FRONT_TEXT, CompoundTag::create()
 				->setString(self::TAG_TEXT_BLOB, implode("\n", $this->text->getLines()))
 				->setInt(self::TAG_TEXT_COLOR, Binary::signInt($this->text->getBaseColor()->toARGB()))
 				->setByte(self::TAG_GLOWING_TEXT, $this->text->isGlowing() ? 1 : 0)

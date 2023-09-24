@@ -91,6 +91,7 @@ use function fwrite;
 use function get_class;
 use function implode;
 use function is_array;
+use function is_null;
 use function is_object;
 use function json_encode;
 use function ksort;
