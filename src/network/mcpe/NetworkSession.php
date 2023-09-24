@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe;
 
+use pocketmine\block\tile\Spawnable;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\event\player\PlayerDuplicateLoginEvent;
 use pocketmine\event\player\SessionDisconnectEvent;
@@ -986,7 +987,6 @@ class NetworkSession{
 
 	public function syncAbilities(Player $for) : void{
 		$isOp = $for->hasPermission(DefaultPermissions::ROOT_OPERATOR);
-
 		if($this->getProtocolId() >= ProtocolInfo::PROTOCOL_1_19_10){
 			//ALL of these need to be set for the base layer, otherwise the client will cry
 			$boolAbilities = [
@@ -1047,7 +1047,7 @@ class NetworkSession{
 			$pk->setFlag(AdventureSettingsPacket::NO_CLIP, !$for->hasBlockCollision());
 			$pk->setFlag(AdventureSettingsPacket::FLYING, $for->isFlying());
 		}
-
+		$layers = [];
 		$layers[] = new AbilitiesLayer(AbilitiesLayer::LAYER_SPECTATOR, [
 			AbilitiesLayer::ABILITY_FLYING => true,
 		], null, null);
