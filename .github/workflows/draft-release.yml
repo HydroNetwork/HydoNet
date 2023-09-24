@@ -92,7 +92,7 @@ jobs:
           commit: ${{ github.sha }}
           draft: true
           prerelease: ${{ steps.get-pm-version.outputs.PRERELEASE }}
-          name: PocketMine-MP ${{ steps.get-pm-version.outputs.PM_VERSION }}
+          name: HydroNet ${{ steps.get-pm-version.outputs.PM_VERSION }}
           tag: ${{ steps.get-pm-version.outputs.PM_VERSION }}
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
