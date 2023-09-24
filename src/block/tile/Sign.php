@@ -151,7 +151,15 @@ class Sign extends Spawnable{
 
 	protected function addAdditionalSpawnData(CompoundTag $nbt, TypeConverter $typeConverter) : void{
 		if($typeConverter->getProtocolId() >= ProtocolInfo::PROTOCOL_1_19_80){
-			$nbt->setTag(self::TAG_FRONT_TEXT, CompoundTag::create()
+            $nbt->setString(self::TAG_TEXT_BLOB, implode("\n", $this->text->getLines()));
+
+			//the following are not yet used by the server, but needed to roll back any changes to glowing state or colour
+			//if the client uses dye on the sign
+			$nbt->setInt(self::TAG_TEXT_COLOR, Binary::signInt(0xff_00_00_00));
+			$nbt->setByte(self::TAG_GLOWING_TEXT, 0);
+			$nbt->setByte(self::TAG_LEGACY_BUG_RESOLVE, 1);
+		} else (){
+            $nbt->setTag(self::TAG_FRONT_TEXT, CompoundTag::create()
 				->setString(self::TAG_TEXT_BLOB, implode("\n", $this->text->getLines()))
 				->setInt(self::TAG_TEXT_COLOR, Binary::signInt($this->text->getBaseColor()->toARGB()))
 				->setByte(self::TAG_GLOWING_TEXT, $this->text->isGlowing() ? 1 : 0)
@@ -165,30 +173,6 @@ class Sign extends Spawnable{
 				->setByte(self::TAG_PERSIST_FORMATTING, 1)
 			);
 			$nbt->setByte(self::TAG_WAXED, 0);
-			$nbt->setLong(self::TAG_LOCKED_FOR_EDITING_BY, $this->editorEntityRuntimeId ?? -1);
-		}elseif ($typeConverter->getProtocolId() >= ProtocolInfo::PROTOCOL_1_20_0){
-			$nbt->setString(self::TAG_TEXT_BLOB, implode("\n", $this->text->getLines()));
-
-			//the following are not yet used by the server, but needed to roll back any changes to glowing state or colour
-			//if the client uses dye on the sign
-			$nbt->setInt(self::TAG_TEXT_COLOR, Binary::signInt(0xff_00_00_00));
-			$nbt->setByte(self::TAG_GLOWING_TEXT, 0);
-			$nbt->setByte(self::TAG_LEGACY_BUG_RESOLVE, 1);
-		} else {
-			$nbt->setTag(self::TAG_FRONT_TEXT, CompoundTag::create()
-				->setString(self::TAG_TEXT_BLOB, implode("\n", $this->text->getLines()))
-				->setInt(self::TAG_TEXT_COLOR, Binary::signInt($this->text->getBaseColor()->toARGB()))
-				->setByte(self::TAG_GLOWING_TEXT, $this->text->isGlowing() ? 1 : 0)
-				->setByte(self::TAG_PERSIST_FORMATTING, 1) //TODO: not sure what this is used for
-			);
-			//TODO: this is not yet used by the server, but needed to rollback any client-side changes to the back text
-			$nbt->setTag(self::TAG_BACK_TEXT, CompoundTag::create()
-				->setString(self::TAG_TEXT_BLOB, "")
-				->setInt(self::TAG_TEXT_COLOR, Binary::signInt(0xff_00_00_00))
-				->setByte(self::TAG_GLOWING_TEXT, 0)
-				->setByte(self::TAG_PERSIST_FORMATTING, 1)
-			);
-			$nbt->setByte(self::TAG_WAXED, $this->waxed ? 1 : 0);
 			$nbt->setLong(self::TAG_LOCKED_FOR_EDITING_BY, $this->editorEntityRuntimeId ?? -1);
 		}
 	}

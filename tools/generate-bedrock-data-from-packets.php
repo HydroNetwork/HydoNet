@@ -256,13 +256,13 @@ class ParserPacketHandler extends PacketHandler{
 		return true;
 	}
 
-	private function recipeIngredientToJson(?RecipeIngredient $itemStack) : RecipeIngredientData{
+	private function recipeIngredientToJson(RecipeIngredient $itemStack) : RecipeIngredientData{
 		if($this->itemTypeDictionary === null){
 			throw new PacketHandlingException("Can't process item yet; haven't received item type dictionary");
 		}
 
 		$descriptor = $itemStack->getDescriptor();
-		if($descriptor === null){
+		if(is_null($descriptor)){
 			throw new PacketHandlingException("Can't json-serialize a null recipe ingredient");
 		}
 		$data = new RecipeIngredientData();

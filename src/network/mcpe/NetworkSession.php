@@ -208,6 +208,7 @@ class NetworkSession{
 
 		$this->setHandler(new LoginPacketHandler(
 			$this->server,
+            $this,
 			function(PlayerInfo $info) : void{
 				$this->info = $info;
 				$this->logger->info($this->server->getLanguage()->translate(KnownTranslationFactory::pocketmine_network_session_playerName(TextFormat::AQUA . $info->getUsername() . TextFormat::RESET)));

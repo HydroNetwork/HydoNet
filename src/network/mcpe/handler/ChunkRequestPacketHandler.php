@@ -28,9 +28,11 @@ use pocketmine\network\mcpe\protocol\ClientCacheBlobStatusPacket;
 use pocketmine\network\mcpe\protocol\ClientCacheMissResponsePacket;
 use pocketmine\network\mcpe\protocol\ClientCacheStatusPacket;
 use pocketmine\network\PacketHandlingException;
+use pocketmine\network\mcpe\protocol\PacketHandlerDefaultImplTrait;
 use function count;
 
 class ChunkRequestPacketHandler extends PacketHandler{
+    use PacketHandlerDefaultImplTrait;
 
 	public function __construct(protected NetworkSession $session){ }
 
