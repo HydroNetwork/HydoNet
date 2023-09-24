@@ -158,7 +158,7 @@ class Sign extends Spawnable{
 			$nbt->setInt(self::TAG_TEXT_COLOR, Binary::signInt(0xff_00_00_00));
 			$nbt->setByte(self::TAG_GLOWING_TEXT, 0);
 			$nbt->setByte(self::TAG_LEGACY_BUG_RESOLVE, 1);
-		} else (){
+		} else {
             $nbt->setTag(self::TAG_FRONT_TEXT, CompoundTag::create()
 				->setString(self::TAG_TEXT_BLOB, implode("\n", $this->text->getLines()))
 				->setInt(self::TAG_TEXT_COLOR, Binary::signInt($this->text->getBaseColor()->toARGB()))
